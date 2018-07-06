@@ -59,13 +59,13 @@
             </div>
             <div class="level-item">
               <div class="control">
-                <button class="button is-info" v-on:click="checkNickname">Done</button>
+                <button class="button is-info" @click="checkNickname">Done</button>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <button class="modal-close is-large" aria-label="close"></button>
+      <button class="modal-close is-large" @click="checkNickname" aria-label="close"></button>
     </div>
   </div>
 
