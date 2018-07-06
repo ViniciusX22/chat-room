@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat Room</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://unpkg.com/vue"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.2.0/firebase.js"></script>
+  <script src="https://unpkg.com/native-toast@1.2.1/dist/native-toast.js"></script>
+  <script defer src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/native-toast@1.2.1/dist/native-toast.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+</head>
+<body>
+  <div id="chat" class="container">
+    <div class="card">
+      <div class="card-header">
+          <div class="container">
+              <h1 class="title has-centered-text">Pulic Chat Room</h1>
+          </div>
+      </div>
+      <!-- Messages -->
+      <div class="card-content is-medium is-clipped">
+        <article v-for="message in messages" class="message">
+          <div class="message-header">
+              <!-- nickname -->
+              <p>{{ message.nickname }}</p>
+          </div>
+          <div class="message-body">
+            <!-- content -->
+            {{ message.text }}
+          </div>
+        </article>
+      </div>
+      <div class="card-footer">
+        <!-- New Message -->
+        <div class="field card-footer-item">
+          <p class="control">
+            <input class="input is-large" v-model="messageText" v-on:keyup.13="storeMessage" style="width: 75vw" type="text" placeholder="Type a message">
+          </p>
+          <p class="control">
+            <button class="button is-link is-large" @click="storeMessage">
+              Send
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    // Initialize Firebase
+    const config = {
+      apiKey: "AIzaSyAdoMuRUfi9gwVb13utv_GFHFXNH0zDqfU",
+      authDomain: "vue-school-chat-room-tutorial.firebaseapp.com",
+      databaseURL: "https://vue-school-chat-room-tutorial.firebaseio.com",
+      projectId: "vue-school-chat-room-tutorial",
+      storageBucket: "vue-school-chat-room-tutorial.appspot.com",
+      messagingSenderId: "396117443497"
+    };
+    firebase.initializeApp(config);
+
+
+    const database = firebase.database()
+    const messagesRef = database.ref('messages')
+
+    new Vue({
+      el: "#chat",
+
+      data: {
+        messages: [],
+        messageText: '',
+        nickname: 'hootlex',
+        editingMessage: null
+      },
+
+      methods: {
+        storeMessage () {
+          messagesRef.push({text: this.messageText, nickname: this.nickname})
+          this.messageText = ''
+        }
+      },
+
+      created () {
+        // value = snapshot.val() | key = snapshot.key
+        messagesRef.on('child_added', snapshot => {
+          this.messages.push({...snapshot.val(), id: snapshot.key})
+          if (snapshot.val().nickname !== this.nickname) {
+            nativeToast({
+                message: `New message by ${snapshot.val().nickname}`,
+                type: 'success'
+            })
+          }
+        })
+      }
+    })
+  </script>
+</body>
+</html>
